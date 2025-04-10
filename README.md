@@ -1,9 +1,4 @@
-# 🔥 zapusk
-
-![GitHub stars](https://img.shields.io/github/stars/vadimx-stack/flask-project?style=for-the-badge)
-![GitHub forks](https://img.shields.io/github/forks/vadimx-stack/flask-project?style=for-the-badge)
-![GitHub issues](https://img.shields.io/github/issues/vadimx-stack/flask-project?style=for-the-badge)
-![GitHub license](https://img.shields.io/github/license/vadimx-stack/flask-project?style=for-the-badge)
+# 🔥 Zapusk
 
 <div align="center">
   <img src="https://i.pinimg.com/originals/8e/0e/d1/8e0ed18a7a87e844dee43a25097118a6.gif" alt="animated" />
