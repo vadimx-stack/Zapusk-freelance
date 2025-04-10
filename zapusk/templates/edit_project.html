@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}Редактирование проекта | Запуск{% endblock %}
+
+{% block content %}
+<section class="form-section">
+    <div class="container">
+        <div class="breadcrumbs">
+            <a href="{{ url_for('index') }}">Главная</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('dashboard') }}">Панель управления</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('project_details', project_id=project.id) }}">{{ project.title }}</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Редактирование</span>
+        </div>
+        
+        <div class="form-container">
+            <h1 class="form-title">Редактирование проекта</h1>
+            
+            <form action="{{ url_for('edit_project', project_id=project.id) }}" method="POST" class="project-form">
+                <div class="form-group">
+                    <label for="title" class="form-label">Название проекта</label>
+                    <input type="text" id="title" name="title" class="form-control" value="{{ project.title }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description" class="form-label">Описание проекта</label>
+                    <textarea id="description" name="description" class="form-control" rows="10" required>{{ project.description }}</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="budget" class="form-label">Бюджет (₽)</label>
+                    <input type="number" id="budget" name="budget" class="form-control" value="{{ project.budget }}" min="0" step="1000" required>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                    <a href="{{ url_for('project_details', project_id=project.id) }}" class="btn btn-outline">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+.form-section {
+    padding: 3rem 0;
+}
+
+.breadcrumbs {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+    font-size: 0.875rem;
+}
+
+.breadcrumbs a {
+    color: var(--gray-dark);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.breadcrumbs a:hover {
+    color: var(--primary-color);
+}
+
+.breadcrumbs i {
+    margin: 0 0.5rem;
+    font-size: 0.75rem;
+    color: var(--gray-color);
+}
+
+.breadcrumbs span {
+    color: var(--gray-dark);
+    font-weight: 500;
+}
+
+.form-container {
+    background-color: white;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.form-title {
+    font-size: 1.75rem;
+    margin-bottom: 2rem;
+    color: var(--dark-color);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--dark-color);
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--gray-light);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 200px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+    .form-container {
+        padding: 1.5rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %} 

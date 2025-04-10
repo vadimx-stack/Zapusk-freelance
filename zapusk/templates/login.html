@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block title %}Вход - Запуск{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="container">
+        <div class="auth-container">
+            <div class="auth-card card">
+                <div class="auth-header">
+                    <h2>Вход в аккаунт</h2>
+                    <p>Добро пожаловать обратно на платформу</p>
+                </div>
+                <div class="auth-body">
+                    <form method="POST" action="{{ url_for('login') }}">
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" id="email" name="email" class="form-control" required placeholder="Введите ваш email">
+                        </div>
+                        <div class="form-group">
+                            <label for="password" class="form-label">Пароль</label>
+                            <input type="password" id="password" name="password" class="form-control" required placeholder="Введите ваш пароль">
+                            <div class="forgot-password">
+                                <a href="#">Забыли пароль?</a>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="remember-me">
+                                <input type="checkbox" id="remember" name="remember">
+                                <label for="remember">Запомнить меня</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary btn-block">Войти</button>
+                        </div>
+                    </form>
+                    <div class="social-login">
+                        <p class="social-login-text">Или войдите через</p>
+                        <div class="social-login-buttons">
+                            <button class="btn btn-social btn-google">
+                                <i class="fab fa-google"></i> Google
+                            </button>
+                            <button class="btn btn-social btn-vk">
+                                <i class="fab fa-vk"></i> ВКонтакте
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="auth-footer">
+                    <p>Нет аккаунта? <a href="{{ url_for('register') }}">Зарегистрироваться</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+.auth-section {
+    padding: 5rem 0;
+    background-color: #F8FAFC;
+    min-height: calc(100vh - 80px);
+    display: flex;
+    align-items: center;
+}
+
+.auth-container {
+    max-width: 450px;
+    margin: 0 auto;
+}
+
+.auth-card {
+    padding: 2rem;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-header h2 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: var(--dark-color);
+}
+
+.auth-header p {
+    color: var(--gray-dark);
+}
+
+.auth-body {
+    margin-bottom: 1.5rem;
+}
+
+.auth-footer {
+    text-align: center;
+    padding-top: 1rem;
+    border-top: 1px solid var(--gray-light);
+}
+
+.btn-block {
+    width: 100%;
+    padding: 0.75rem;
+}
+
+.forgot-password {
+    text-align: right;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.remember-me label {
+    font-size: 0.875rem;
+    color: var(--gray-dark);
+}
+
+.social-login {
+    margin-top: 2rem;
+}
+
+.social-login-text {
+    text-align: center;
+    position: relative;
+    margin-bottom: 1.5rem;
+    color: var(--gray-dark);
+    font-size: 0.875rem;
+}
+
+.social-login-text::before,
+.social-login-text::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    height: 1px;
+    width: 30%;
+    background-color: var(--gray-light);
+}
+
+.social-login-text::before {
+    left: 0;
+}
+
+.social-login-text::after {
+    right: 0;
+}
+
+.social-login-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-social {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: white;
+    border: 1px solid var(--gray-light);
+    color: var(--dark-color);
+}
+
+.btn-social:hover {
+    background-color: #f9f9f9;
+    color: var(--dark-color);
+}
+
+.btn-google {
+    color: #DB4437;
+}
+
+.btn-vk {
+    color: #4C75A3;
+}
+
+@media (max-width: 576px) {
+    .auth-card {
+        padding: 1.5rem;
+    }
+    
+    .social-login-buttons {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %} 

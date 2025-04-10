@@ -1,0 +1,527 @@
+{% extends 'base.html' %}
+
+{% block title %}Личный кабинет фрилансера - Запуск{% endblock %}
+
+{% block content %}
+<section class="dashboard-section">
+    <div class="container">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">Личный кабинет</h1>
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <h2 class="user-name">{{ user.username }}</h2>
+                    <p class="user-role">Фрилансер</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-tabs">
+            <button class="tab-btn active" data-tab="projects">Доступные проекты</button>
+            <button class="tab-btn" data-tab="proposals">Мои предложения</button>
+            <button class="tab-btn" data-tab="profile">Мой профиль</button>
+        </div>
+
+        <div class="dashboard-content">
+            <div class="tab-content active" id="projects-content">
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Доступные проекты</h3>
+                        <div class="card-actions">
+                            <div class="search-box">
+                                <input type="text" placeholder="Поиск проектов..." id="project-search">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <div class="filter-dropdown">
+                                <button class="btn btn-sm">
+                                    <i class="fas fa-filter"></i> Фильтры
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% if projects %}
+                            <div class="project-list">
+                                {% for project in projects %}
+                                    <div class="project-item">
+                                        <div class="project-content">
+                                            <h4 class="project-title">{{ project.title }}</h4>
+                                            <div class="project-meta">
+                                                <span class="project-budget"><i class="fas fa-ruble-sign"></i> {{ project.budget }} ₽</span>
+                                                <span class="project-date"><i class="far fa-calendar-alt"></i> {{ project.created_at.strftime('%d.%m.%Y') }}</span>
+                                                <span class="project-status status-{{ project.status }}">{{ project.status }}</span>
+                                            </div>
+                                            <p class="project-description">{{ project.description|truncate(200) }}</p>
+                                        </div>
+                                        <div class="project-actions">
+                                            <a href="{{ url_for('project_details', project_id=project.id) }}" class="btn btn-sm btn-outline">Подробнее</a>
+                                            <a href="{{ url_for('submit_proposal', project_id=project.id) }}" class="btn btn-sm btn-primary">Подать заявку</a>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <i class="fas fa-search"></i>
+                                </div>
+                                <h4>Нет доступных проектов</h4>
+                                <p>На данный момент нет доступных проектов. Проверьте позже.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="proposals-content">
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Мои предложения</h3>
+                    </div>
+                    <div class="card-body">
+                        {% if proposals %}
+                            <div class="proposal-list">
+                                {% for proposal in proposals %}
+                                    <div class="proposal-item">
+                                        <div class="proposal-project">
+                                            <h4 class="proposal-title">{{ proposal.project.title }}</h4>
+                                            <div class="proposal-meta">
+                                                <span class="proposal-date"><i class="far fa-calendar-alt"></i> {{ proposal.created_at.strftime('%d.%m.%Y') }}</span>
+                                                <span class="proposal-status status-{{ proposal.status }}">{{ proposal.status }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="proposal-details">
+                                            <div class="proposal-amount">
+                                                <span class="amount-label">Ваше предложение:</span>
+                                                <span class="amount-value">{{ proposal.bid_amount }} ₽</span>
+                                            </div>
+                                            <p class="proposal-description">{{ proposal.description|truncate(100) }}</p>
+                                        </div>
+                                        <div class="proposal-actions">
+                                            <a href="{{ url_for('project_details', project_id=proposal.project.id) }}" class="btn btn-sm btn-outline">Проект</a>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <i class="far fa-file-alt"></i>
+                                </div>
+                                <h4>Нет предложений</h4>
+                                <p>Вы еще не подали ни одного предложения на проекты.</p>
+                                <a href="{{ url_for('projects') }}" class="btn btn-primary">Найти проекты</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="profile-content">
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Мой профиль</h3>
+                    </div>
+                    <div class="card-body">
+                        <form class="profile-form">
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="username" class="form-label">Имя пользователя</label>
+                                    <input type="text" id="username" name="username" class="form-control" value="{{ user.username }}">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" id="email" name="email" class="form-control" value="{{ user.email }}">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="bio" class="form-label">Обо мне</label>
+                                <textarea id="bio" name="bio" class="form-control" rows="4" placeholder="Расскажите о себе и своем опыте..."></textarea>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="specialization" class="form-label">Специализация</label>
+                                    <input type="text" id="specialization" name="specialization" class="form-control" placeholder="Например: Веб-разработка, Дизайн...">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="hourly_rate" class="form-label">Часовая ставка (₽)</label>
+                                    <input type="number" id="hourly_rate" name="hourly_rate" class="form-control" placeholder="Например: 1500">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="skills" class="form-label">Навыки</label>
+                                <input type="text" id="skills" name="skills" class="form-control" placeholder="Например: HTML, CSS, JavaScript, Python...">
+                                <small class="form-text">Укажите навыки через запятую</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+.dashboard-section {
+    padding: 3rem 0;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--gray-light);
+}
+
+.dashboard-title {
+    font-size: 2rem;
+    margin-bottom: 0;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+}
+
+.user-avatar {
+    width: 60px;
+    height: 60px;
+    background-color: var(--primary-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    color: var(--primary-color);
+    font-size: 1.5rem;
+}
+
+.user-name {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.user-role {
+    color: var(--gray-color);
+    margin: 0;
+}
+
+.dashboard-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--gray-light);
+    padding-bottom: 0.5rem;
+}
+
+.tab-btn {
+    padding: 0.75rem 1.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--gray-dark);
+    border-radius: var(--radius-md);
+    transition: var(--transition);
+}
+
+.tab-btn:hover {
+    background-color: rgba(79, 70, 229, 0.05);
+    color: var(--primary-color);
+}
+
+.tab-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.dashboard-card {
+    background-color: white;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--gray-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-title {
+    margin-bottom: 0;
+    font-size: 1.25rem;
+}
+
+.card-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.search-box {
+    position: relative;
+}
+
+.search-box input {
+    padding: 0.5rem 2.5rem 0.5rem 1rem;
+    border: 1px solid var(--gray-light);
+    border-radius: var(--radius-md);
+    width: 250px;
+}
+
+.search-box i {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray-color);
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.project-list,
+.proposal-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.project-item,
+.proposal-item {
+    border: 1px solid var(--gray-light);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    transition: var(--transition);
+}
+
+.project-item:hover,
+.proposal-item:hover {
+    box-shadow: var(--shadow-md);
+    border-color: transparent;
+}
+
+.project-content,
+.proposal-project {
+    flex: 1;
+}
+
+.project-title,
+.proposal-title {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.project-meta,
+.proposal-meta {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    color: var(--gray-dark);
+    font-size: 0.9rem;
+}
+
+.project-description,
+.proposal-description {
+    color: var(--gray-dark);
+    margin-bottom: 0;
+}
+
+.project-actions,
+.proposal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-left: 1.5rem;
+    justify-content: center;
+}
+
+.status-open {
+    color: var(--primary-color);
+}
+
+.status-pending {
+    color: var(--warning-color);
+}
+
+.status-accepted {
+    color: var(--secondary-color);
+}
+
+.status-rejected {
+    color: var(--danger-color);
+}
+
+.status-in_progress {
+    color: var(--primary-color);
+}
+
+.status-completed {
+    color: var(--secondary-color);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 0;
+}
+
+.empty-icon {
+    font-size: 3rem;
+    color: var(--gray-color);
+    margin-bottom: 1rem;
+}
+
+.empty-state h4 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    color: var(--gray-dark);
+    margin-bottom: 1.5rem;
+}
+
+.proposal-details {
+    margin-top: 1rem;
+}
+
+.proposal-amount {
+    margin-bottom: 0.5rem;
+}
+
+.amount-label {
+    font-weight: 500;
+    margin-right: 0.5rem;
+}
+
+.amount-value {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.profile-form {
+    max-width: 800px;
+}
+
+.form-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.col-md-6 {
+    flex: 1;
+}
+
+.form-text {
+    font-size: 0.875rem;
+    color: var(--gray-color);
+    margin-top: 0.25rem;
+}
+
+@media (max-width: 768px) {
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .dashboard-tabs {
+        flex-wrap: wrap;
+    }
+    
+    .project-item,
+    .proposal-item {
+        flex-direction: column;
+    }
+    
+    .project-actions,
+    .proposal-actions {
+        margin-left: 0;
+        margin-top: 1rem;
+        flex-direction: row;
+    }
+    
+    .search-box input {
+        width: 100%;
+    }
+    
+    .card-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            this.classList.add('active');
+            
+            const tabId = this.getAttribute('data-tab');
+            document.getElementById(`${tabId}-content`).classList.add('active');
+        });
+    });
+    
+    const searchInput = document.getElementById('project-search');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const projects = document.querySelectorAll('.project-item');
+            
+            projects.forEach(project => {
+                const title = project.querySelector('.project-title').textContent.toLowerCase();
+                const description = project.querySelector('.project-description').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    project.style.display = '';
+                } else {
+                    project.style.display = 'none';
+                }
+            });
+        });
+    }
+});
+</script>
+{% endblock %} 

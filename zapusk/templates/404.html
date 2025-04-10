@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block title %}Страница не найдена - Запуск{% endblock %}
+
+{% block content %}
+<section class="error-section">
+    <div class="container">
+        <div class="error-container">
+            <div class="error-animation">
+                <svg viewBox="0 0 200 200" class="error-svg">
+                    <circle cx="100" cy="100" r="90" class="error-circle" />
+                    <text x="100" y="120" class="error-text" text-anchor="middle">404</text>
+                </svg>
+                <div class="error-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+            <h1 class="error-code">404</h1>
+            <h2 class="error-message">Страница не найдена</h2>
+            <p class="error-description">Кажется, вы попытались получить доступ к странице, которая была перемещена или никогда не существовала. Проверьте URL или вернитесь на главную страницу.</p>
+            <div class="error-buttons">
+                <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">Вернуться на главную</a>
+                <a href="javascript:history.back()" class="btn btn-outline btn-lg">Назад</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+.error-section {
+    padding: 5rem 0;
+    min-height: calc(100vh - 80px);
+    display: flex;
+    align-items: center;
+}
+
+.error-container {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.error-animation {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 2rem;
+}
+
+.error-svg {
+    width: 100%;
+    height: 100%;
+}
+
+.error-circle {
+    fill: none;
+    stroke: var(--primary-color);
+    stroke-width: 5;
+    stroke-dasharray: 565.48;
+    stroke-dashoffset: 565.48;
+    animation: circle-draw 2s ease forwards;
+}
+
+.error-text {
+    font-size: 60px;
+    font-weight: bold;
+    fill: var(--primary-color);
+    opacity: 0;
+    animation: text-fade 1s ease forwards 1.5s;
+}
+
+.error-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    animation: icon-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 2.5s;
+}
+
+.error-code {
+    font-size: 8rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    line-height: 1;
+    margin-bottom: 1rem;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fade-up 0.8s ease forwards 0.5s;
+}
+
+.error-message {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fade-up 0.8s ease forwards 0.7s;
+}
+
+.error-description {
+    font-size: 1.25rem;
+    color: var(--gray-dark);
+    margin-bottom: 2.5rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fade-up 0.8s ease forwards 0.9s;
+}
+
+.error-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fade-up 0.8s ease forwards 1.1s;
+}
+
+@keyframes circle-draw {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes text-fade {
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes icon-pop {
+    to {
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+@keyframes fade-up {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .error-code {
+        font-size: 6rem;
+    }
+    
+    .error-message {
+        font-size: 2rem;
+    }
+    
+    .error-animation {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .error-buttons {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %} 

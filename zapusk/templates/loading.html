@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Загрузка... - Запуск</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4F46E5;
+            --primary-dark: #4338CA;
+            --primary-light: #818CF8;
+            --dark-color: #1F2937;
+            --light-color: #F9FAFB;
+            --gray-color: #9CA3AF;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--light-color);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .loading-container {
+            text-align: center;
+            max-width: 500px;
+            padding: 0 2rem;
+        }
+        
+        .logo {
+            margin-bottom: 3rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            letter-spacing: 1px;
+        }
+        
+        .loading-animation {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 3rem;
+        }
+        
+        .loading-circle {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 5px solid rgba(79, 70, 229, 0.2);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1.5s linear infinite;
+        }
+        
+        .loading-circle:nth-child(2) {
+            width: 80%;
+            height: 80%;
+            top: 10%;
+            left: 10%;
+            animation-duration: 2s;
+            animation-direction: reverse;
+        }
+        
+        .loading-circle:nth-child(3) {
+            width: 60%;
+            height: 60%;
+            top: 20%;
+            left: 20%;
+            animation-duration: 2.5s;
+        }
+        
+        .loading-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--dark-color);
+        }
+        
+        .loading-message {
+            font-size: 1.1rem;
+            color: var(--gray-color);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .loading-status {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .status-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 0.75rem;
+            position: relative;
+        }
+        
+        .status-icon .dot {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .status-icon .dot:nth-child(1) {
+            left: 0;
+            animation-delay: 0s;
+        }
+        
+        .status-icon .dot:nth-child(2) {
+            left: 7px;
+            animation-delay: 0.5s;
+        }
+        
+        .status-icon .dot:nth-child(3) {
+            left: 14px;
+            animation-delay: 1s;
+        }
+        
+        .status-text {
+            font-size: 0.9rem;
+            color: var(--gray-color);
+        }
+        
+        .loading-progress {
+            width: 100%;
+            height: 6px;
+            background-color: rgba(79, 70, 229, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        
+        .loading-progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0;
+            animation: progress 8s ease-in-out forwards;
+        }
+        
+        .loading-help {
+            font-size: 0.9rem;
+            color: var(--gray-color);
+        }
+        
+        .loading-help a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .loading-help a:hover {
+            text-decoration: underline;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.75;
+            }
+            50% {
+                transform: scale(1.5);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0.75;
+            }
+        }
+        
+        @keyframes progress {
+            0% {
+                width: 5%;
+            }
+            20% {
+                width: 20%;
+            }
+            50% {
+                width: 50%;
+            }
+            80% {
+                width: 80%;
+            }
+            100% {
+                width: 95%;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .loading-title {
+                font-size: 1.5rem;
+            }
+            
+            .loading-message {
+                font-size: 1rem;
+            }
+            
+            .loading-animation {
+                width: 100px;
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-container">
+        <div class="logo">ЗАПУСК</div>
+        
+        <div class="loading-animation">
+            <div class="loading-circle"></div>
+            <div class="loading-circle"></div>
+            <div class="loading-circle"></div>
+        </div>
+        
+        <h1 class="loading-title">Соединение с сервером...</h1>
+        <p class="loading-message">Пожалуйста, подождите, мы пытаемся восстановить соединение с сервером. Это может занять несколько минут.</p>
+        
+        <div class="loading-status">
+            <div class="status-icon">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+            <div class="status-text">Попытка подключения к серверу</div>
+        </div>
+        
+        <div class="loading-progress">
+            <div class="loading-progress-bar"></div>
+        </div>
+        
+        <p class="loading-help">Если проблема не устраняется, пожалуйста, <a href="#">свяжитесь с нами</a> или <a href="#">обновите страницу</a>.</p>
+    </div>
+    
+    <script>
+        function simulateReconnectionAttempts() {
+            const statusText = document.querySelector('.status-text');
+            const reconnectMessages = [
+                'Попытка подключения к серверу',
+                'Повторная попытка подключения...',
+                'Проверка доступности сервера...',
+                'Ожидание ответа от сервера...',
+                'Подключение к резервному серверу...'
+            ];
+            
+            let attempt = 0;
+            
+            const intervalId = setInterval(() => {
+                attempt++;
+                if (attempt >= reconnectMessages.length) {
+                    clearInterval(intervalId);
+                    
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 5000);
+                    
+                    statusText.textContent = 'Подключение установлено! Перенаправление...';
+                } else {
+                    statusText.textContent = reconnectMessages[attempt];
+                }
+            }, 2000);
+        }
+        
+        window.onload = function() {
+            simulateReconnectionAttempts();
+        };
+    </script>
+</body>
+</html> 

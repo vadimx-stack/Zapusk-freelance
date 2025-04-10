@@ -1,0 +1,462 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="hero-section hero-bg">
+    <div class="container">
+        <div class="hero-content">
+            <h1 class="hero-title">Найдите лучших специалистов для вашего проекта</h1>
+            <p class="hero-subtitle">ЗАПУСК - это платформа, которая соединяет талантливых фрилансеров с проектами по всему миру</p>
+            <div class="hero-buttons">
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Начать сейчас</a>
+                <a href="{{ url_for('projects') }}" class="btn btn-outline btn-lg">Посмотреть проекты</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section features-section">
+    <div class="container">
+        <h2 class="section-title">Почему Запуск?</h2>
+        <p class="section-subtitle">Мы предлагаем лучшие условия для фрилансеров и заказчиков</p>
+        
+        <div class="grid grid-3">
+            <div class="feature-card card">
+                <div class="card-body">
+                    <div class="icon-animated mb-4">
+                        <i class="fas fa-shield-alt fa-2x"></i>
+                    </div>
+                    <h3 class="card-title">Безопасные платежи</h3>
+                    <p class="card-text">Система безопасного резервирования средств гарантирует выполнение работы и оплату.</p>
+                </div>
+            </div>
+            
+            <div class="feature-card card">
+                <div class="card-body">
+                    <div class="icon-animated mb-4">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                    <h3 class="card-title">Проверенные специалисты</h3>
+                    <p class="card-text">Все фрилансеры проходят верификацию для подтверждения их навыков и опыта.</p>
+                </div>
+            </div>
+            
+            <div class="feature-card card">
+                <div class="card-body">
+                    <div class="icon-animated mb-4">
+                        <i class="fas fa-comments fa-2x"></i>
+                    </div>
+                    <h3 class="card-title">Постоянная поддержка</h3>
+                    <p class="card-text">Наша служба поддержки всегда готова помочь с любыми вопросами 24/7.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section projects-section">
+    <div class="container">
+        <h2 class="section-title">Новые проекты</h2>
+        <p class="section-subtitle">Найдите интересную работу уже сегодня</p>
+        
+        <div class="grid grid-3">
+            {% for project in projects %}
+            <div class="project-card card">
+                <div class="card-body">
+                    <h3 class="card-title">{{ project.title }}</h3>
+                    <div class="project-details">
+                        <span class="project-budget">
+                            <i class="fas fa-ruble-sign"></i> {{ project.budget }} ₽
+                        </span>
+                        <span class="project-date">
+                            <i class="far fa-calendar-alt"></i> {{ project.created_at.strftime('%d.%m.%Y') }}
+                        </span>
+                    </div>
+                    <p class="project-description">{{ project.description|truncate(150) }}</p>
+                    <div class="project-status">Статус: {{ project.status }}</div>
+                </div>
+                <div class="card-footer">
+                    <a href="{{ url_for('project_details', project_id=project.id) }}" class="btn btn-primary btn-sm">Подробнее</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-5">
+            <a href="{{ url_for('projects') }}" class="btn btn-outline btn-lg">Смотреть все проекты</a>
+        </div>
+    </div>
+</section>
+
+<section class="section how-it-works-section bg-light">
+    <div class="container">
+        <h2 class="section-title">Как это работает</h2>
+        <p class="section-subtitle">Простой процесс для заказчиков и фрилансеров</p>
+        
+        <div class="grid grid-2">
+            <div class="how-it-works-col">
+                <h3 class="how-it-works-title">Для заказчиков</h3>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4 class="step-title">Создайте проект</h4>
+                            <p class="step-text">Опишите детали вашего проекта, укажите бюджет и сроки.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4 class="step-title">Выберите фрилансера</h4>
+                            <p class="step-text">Просмотрите предложения и выберите подходящего исполнителя.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4 class="step-title">Получите результат</h4>
+                            <p class="step-text">Оплата происходит только после приемки работы.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="how-it-works-col">
+                <h3 class="how-it-works-title">Для фрилансеров</h3>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4 class="step-title">Найдите проект</h4>
+                            <p class="step-text">Просмотрите доступные проекты и выберите подходящие для вас.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4 class="step-title">Подайте предложение</h4>
+                            <p class="step-text">Опишите ваш опыт и предложите вашу ставку.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4 class="step-title">Выполните работу</h4>
+                            <p class="step-text">Выполните проект и получите оплату.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section stats-section">
+    <div class="container">
+        <div class="stats-container">
+            <div class="stat-item">
+                <div class="stat-number" data-count="10000">0</div>
+                <div class="stat-label">Фрилансеров</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" data-count="25000">0</div>
+                <div class="stat-label">Проектов</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" data-count="95">0</div>
+                <div class="stat-label">% Успешных проектов</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" data-count="300">0</div>
+                <div class="stat-label">Млн ₽ выплачено</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section cta-section cta-bg">
+    <div class="container">
+        <div class="cta-content">
+            <h2 class="cta-title">Готовы начать?</h2>
+            <p class="cta-text">Присоединяйтесь к тысячам пользователей, которые уже нашли лучших специалистов для своих проектов или получили интересную работу</p>
+            <div class="cta-buttons">
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Регистрация</a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline btn-lg">Войти</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+.hero-section {
+    height: 100vh;
+    min-height: 600px;
+    display: flex;
+    align-items: center;
+    background-size: cover;
+    background-position: center;
+    color: white;
+    margin-top: -80px;
+    padding-top: 80px;
+}
+
+.hero-bg {
+    background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+                      url("{{ url_for('static', filename='img/hero-bg.jpg') }}");
+}
+
+.hero-content {
+    max-width: 800px;
+    text-align: center;
+    margin: 0 auto;
+    padding: 2rem 0;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.btn-outline {
+    border-color: white;
+    color: white;
+}
+
+.btn-outline:hover {
+    background-color: white;
+    color: var(--primary-color);
+}
+
+.features-section {
+    padding: 6rem 0;
+}
+
+.feature-card {
+    text-align: center;
+    padding: 2rem;
+}
+
+.bg-light {
+    background-color: #F8FAFC;
+}
+
+.how-it-works-title {
+    font-size: 1.75rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.steps {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.step {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.step-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.step-title {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.stats-section {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 4rem 0;
+}
+
+.stats-container {
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    padding: 2rem;
+}
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 1.25rem;
+    opacity: 0.9;
+}
+
+.cta-section {
+    background-size: cover;
+    background-position: center;
+    color: white;
+    padding: 6rem 0;
+}
+
+.cta-bg {
+    background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), 
+                      url("{{ url_for('static', filename='img/cta-bg.jpg') }}");
+}
+
+.cta-content {
+    max-width: 800px;
+    text-align: center;
+    margin: 0 auto;
+}
+
+.cta-title {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.cta-text {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.project-details {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    color: var(--gray-dark);
+    font-size: 0.9rem;
+}
+
+.project-description {
+    margin-bottom: 1rem;
+    color: var(--gray-dark);
+}
+
+.project-status {
+    font-weight: 500;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.text-center {
+    text-align: center;
+}
+
+.mt-5 {
+    margin-top: 3rem;
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .hero-buttons {
+        flex-direction: column;
+    }
+    
+    .stats-container {
+        flex-direction: column;
+    }
+    
+    .stat-item {
+        padding: 1rem;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function animateCounter(element, target, duration = 2000) {
+        const start = 0;
+        const increment = Math.ceil(target / (duration / 20));
+        let current = start;
+        
+        const timer = setInterval(() => {
+            current += increment;
+            
+            if (current >= target) {
+                clearInterval(timer);
+                current = target;
+            }
+            
+            element.textContent = current.toLocaleString();
+        }, 20);
+    }
+    
+    function isElementInViewport(el) {
+        const rect = el.getBoundingClientRect();
+        return (
+            rect.top >= 0 &&
+            rect.left >= 0 &&
+            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+            rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+        );
+    }
+    
+    const counters = document.querySelectorAll('.stat-number');
+    let hasAnimated = false;
+    
+    function checkCounters() {
+        if (hasAnimated) return;
+        
+        if (isElementInViewport(document.querySelector('.stats-container'))) {
+            hasAnimated = true;
+            
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-count'));
+                animateCounter(counter, target);
+            });
+        }
+    }
+    
+    checkCounters();
+    window.addEventListener('scroll', checkCounters);
+});
+</script>
+{% endblock %} 

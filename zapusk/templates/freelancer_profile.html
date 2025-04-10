@@ -1,0 +1,727 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ user.username }} - Профиль фрилансера | Запуск{% endblock %}
+
+{% block content %}
+<section class="profile-section">
+    <div class="container">
+        <div class="breadcrumbs">
+            <a href="{{ url_for('index') }}">Главная</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Профиль фрилансера</span>
+        </div>
+        
+        <div class="profile-layout">
+            <div class="profile-sidebar">
+                <div class="profile-card">
+                    <div class="profile-avatar">
+                        <img src="{{ url_for('static', filename='images/avatars/default.jpg') if not user.avatar else url_for('static', filename='uploads/avatars/' + user.avatar) }}" alt="{{ user.username }}">
+                    </div>
+                    <h2 class="profile-name">{{ user.username }}</h2>
+                    <div class="profile-role">Фрилансер</div>
+                    <div class="profile-rating">
+                        <div class="stars">
+                            {% for i in range(5) %}
+                                {% if i < user.rating|int %}
+                                    <i class="fas fa-star"></i>
+                                {% elif i < user.rating %}
+                                    <i class="fas fa-star-half-alt"></i>
+                                {% else %}
+                                    <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <span class="rating-value">{{ user.rating or 0 }}</span>
+                        <span class="rating-count">({{ user.reviews|length if user.reviews else 0 }} отзывов)</span>
+                    </div>
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">{{ completed_projects|length }}</div>
+                            <div class="stat-label">Выполнено</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">{{ user.avg_completion_time or 0 }}</div>
+                            <div class="stat-label">Дней</div>
+                        </div>
+                    </div>
+                    <div class="profile-specialization">
+                        {{ user.specialization or 'Специализация не указана' }}
+                    </div>
+                    <div class="profile-meta">
+                        <div class="meta-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>{{ user.location or 'Не указано' }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="far fa-clock"></i>
+                            <span>На сайте с {{ user.created_at.strftime('%d.%m.%Y') }}</span>
+                        </div>
+                    </div>
+                    
+                    {% if current_user.is_authenticated and current_user.id != user.id %}
+                    <div class="profile-actions">
+                        <a href="#" class="btn btn-primary btn-block">Связаться</a>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="skills-card">
+                    <h3 class="card-title">Навыки</h3>
+                    <div class="skills-content">
+                        {% if user.skills %}
+                            <div class="skills-list">
+                                {% for skill in user.skills %}
+                                <span class="skill-tag">{{ skill }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted">Навыки не указаны</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-main">
+                <div class="about-section">
+                    <h3 class="section-title">О фрилансере</h3>
+                    <div class="about-content">
+                        {% if user.about %}
+                            {{ user.about|safe }}
+                        {% else %}
+                            <p class="text-muted">Информация отсутствует</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="portfolio-section">
+                    <div class="profile-section-header">
+                        <h3 class="section-title">Портфолио</h3>
+                    </div>
+                    
+                    {% if user.portfolio_items %}
+                    <div class="portfolio-items">
+                        {% for item in user.portfolio_items %}
+                        <div class="portfolio-item">
+                            <div class="portfolio-image">
+                                <img src="{{ url_for('static', filename='uploads/portfolio/' + item.image) }}" alt="{{ item.title }}">
+                            </div>
+                            <div class="portfolio-info">
+                                <h4 class="portfolio-title">{{ item.title }}</h4>
+                                <p class="portfolio-description">{{ item.description }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-images"></i>
+                        </div>
+                        <h4>Портфолио пусто</h4>
+                        <p>Фрилансер пока не добавил работы в портфолио</p>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="completed-projects-section">
+                    <div class="profile-section-header">
+                        <h3 class="section-title">Выполненные проекты</h3>
+                    </div>
+                    
+                    {% if completed_projects %}
+                    <div class="projects-list">
+                        {% for project in completed_projects %}
+                        <div class="project-card">
+                            <div class="project-status status-completed">
+                                <i class="fas fa-check-circle"></i> Завершен
+                            </div>
+                            <h3 class="project-title">
+                                <a href="{{ url_for('project_details', project_id=project.id) }}">{{ project.title }}</a>
+                            </h3>
+                            <div class="project-meta">
+                                <div class="meta-item">
+                                    <i class="far fa-calendar-alt"></i>
+                                    <span>{{ project.created_at.strftime('%d.%m.%Y') }}</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-check"></i>
+                                    <span>Выполнен {{ project.completed_at.strftime('%d.%m.%Y') if project.completed_at else 'Н/Д' }}</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-user-tie"></i>
+                                    <span>{{ project.client.username }}</span>
+                                </div>
+                            </div>
+                            <div class="project-budget">{{ project.budget }} ₽</div>
+                            <div class="project-description">
+                                {{ project.description|truncate(150) }}
+                            </div>
+                            <div class="project-skills">
+                                {% for skill in project.skills %}
+                                <span class="skill-tag">{{ skill }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <h4>Нет выполненных проектов</h4>
+                        <p>Фрилансер пока не выполнил ни одного проекта</p>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="reviews-section">
+                    <div class="profile-section-header">
+                        <h3 class="section-title">Отзывы</h3>
+                    </div>
+                    
+                    {% if user.reviews %}
+                    <div class="reviews-list">
+                        {% for review in user.reviews %}
+                        <div class="review-card">
+                            <div class="review-header">
+                                <div class="reviewer-info">
+                                    <div class="reviewer-avatar">
+                                        <img src="{{ url_for('static', filename='images/avatars/default.jpg') if not review.client.avatar else url_for('static', filename='uploads/avatars/' + review.client.avatar) }}" alt="{{ review.client.username }}">
+                                    </div>
+                                    <div class="reviewer-details">
+                                        <h4 class="reviewer-name">{{ review.client.username }}</h4>
+                                        <span class="review-date">{{ review.created_at.strftime('%d.%m.%Y') }}</span>
+                                    </div>
+                                </div>
+                                <div class="review-rating">
+                                    {% for i in range(5) %}
+                                        {% if i < review.rating %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="review-content">
+                                <p>{{ review.content }}</p>
+                            </div>
+                            <div class="review-project">
+                                <a href="{{ url_for('project_details', project_id=review.project_id) }}">
+                                    <i class="fas fa-link"></i> {{ review.project.title }}
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <h4>Нет отзывов</h4>
+                        <p>Фрилансер пока не получил отзывов</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+.profile-section {
+    padding: 3rem 0;
+}
+
+.breadcrumbs {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+    font-size: 0.875rem;
+}
+
+.breadcrumbs a {
+    color: var(--gray-dark);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.breadcrumbs a:hover {
+    color: var(--primary-color);
+}
+
+.breadcrumbs i {
+    margin: 0 0.5rem;
+    font-size: 0.75rem;
+    color: var(--gray-color);
+}
+
+.breadcrumbs span {
+    color: var(--gray-dark);
+    font-weight: 500;
+}
+
+.profile-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2rem;
+}
+
+.profile-card {
+    background-color: white;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    padding: 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin: 0 auto 1.5rem;
+    overflow: hidden;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-name {
+    font-size: 1.5rem;
+    margin: 0 0 0.5rem;
+    color: var(--dark-color);
+}
+
+.profile-role {
+    display: inline-block;
+    padding: 0.35rem 1rem;
+    background-color: rgba(79, 70, 229, 0.1);
+    color: var(--primary-color);
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.profile-rating {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.stars {
+    display: flex;
+    color: var(--warning-color);
+}
+
+.rating-value {
+    font-weight: 700;
+}
+
+.rating-count {
+    color: var(--gray-color);
+    font-size: 0.875rem;
+}
+
+.profile-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1.25rem;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--gray-color);
+    text-transform: uppercase;
+}
+
+.profile-specialization {
+    font-size: 1.125rem;
+    color: var(--dark-color);
+    margin-bottom: 1.25rem;
+}
+
+.profile-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--gray-dark);
+    font-size: 0.875rem;
+}
+
+.meta-item i {
+    width: 1.25rem;
+    color: var(--primary-color);
+}
+
+.profile-actions {
+    margin-top: 1.5rem;
+}
+
+.skills-card {
+    background-color: white;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    padding: 1.5rem;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    margin: 0 0 1rem;
+    color: var(--dark-color);
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--gray-light);
+}
+
+.skills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.skill-tag {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: rgba(79, 70, 229, 0.05);
+    color: var(--primary-color);
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+}
+
+.text-muted {
+    color: var(--gray-color);
+    font-style: italic;
+}
+
+.profile-main > div {
+    background-color: white;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.profile-main > div:last-child {
+    margin-bottom: 0;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    margin: 0 0 1.5rem;
+    color: var(--dark-color);
+    position: relative;
+}
+
+.about-content {
+    color: var(--gray-dark);
+    line-height: 1.7;
+}
+
+.profile-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.portfolio-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.portfolio-item {
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+}
+
+.portfolio-item:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.portfolio-image {
+    height: 200px;
+}
+
+.portfolio-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.portfolio-info {
+    padding: 1.25rem;
+    background-color: white;
+}
+
+.portfolio-title {
+    font-size: 1.125rem;
+    margin: 0 0 0.5rem;
+    color: var(--dark-color);
+}
+
+.portfolio-description {
+    font-size: 0.9375rem;
+    color: var(--gray-dark);
+    margin: 0;
+}
+
+.projects-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+.project-card {
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    padding: 1.5rem;
+    position: relative;
+    border: 1px solid var(--gray-light);
+}
+
+.project-status {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.35rem 0.75rem;
+    border-radius: var(--radius-sm);
+}
+
+.status-completed {
+    color: var(--success-color);
+    background-color: rgba(34, 197, 94, 0.05);
+}
+
+.project-title {
+    font-size: 1.25rem;
+    margin: 0 0 0.75rem;
+    padding-right: 7rem;
+}
+
+.project-title a {
+    color: var(--dark-color);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.project-title a:hover {
+    color: var(--primary-color);
+}
+
+.project-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.project-meta .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--gray-color);
+    font-size: 0.8125rem;
+}
+
+.project-meta .meta-item i {
+    color: var(--gray-color);
+    width: auto;
+}
+
+.project-budget {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.project-description {
+    color: var(--gray-dark);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.project-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.reviews-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+.review-card {
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    padding: 1.5rem;
+    border: 1px solid var(--gray-light);
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.reviewer-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.reviewer-avatar {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.reviewer-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.reviewer-name {
+    font-size: 1.125rem;
+    margin: 0 0 0.25rem;
+}
+
+.review-date {
+    font-size: 0.875rem;
+    color: var(--gray-color);
+}
+
+.review-rating {
+    color: var(--warning-color);
+}
+
+.review-content {
+    margin-bottom: 1rem;
+    color: var(--gray-dark);
+    line-height: 1.6;
+}
+
+.review-project {
+    padding-top: 1rem;
+    border-top: 1px solid var(--gray-light);
+}
+
+.review-project a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    transition: var(--transition);
+}
+
+.review-project a:hover {
+    text-decoration: underline;
+}
+
+.empty-state {
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--gray-light);
+    padding: 3rem;
+    text-align: center;
+}
+
+.empty-icon {
+    font-size: 3rem;
+    color: var(--gray-light);
+    margin-bottom: 1rem;
+}
+
+.empty-state h4 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    color: var(--dark-color);
+}
+
+.empty-state p {
+    color: var(--gray-color);
+}
+
+@media (max-width: 992px) {
+    .profile-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .profile-sidebar {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+    
+    .profile-card, .skills-card {
+        margin-bottom: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-sidebar {
+        grid-template-columns: 1fr;
+    }
+    
+    .profile-card {
+        margin-bottom: 1.5rem;
+    }
+    
+    .portfolio-items {
+        grid-template-columns: 1fr;
+    }
+    
+    .review-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .reviewer-info {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+</style>
+{% endblock %} 

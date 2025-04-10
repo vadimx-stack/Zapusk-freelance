@@ -1,0 +1,880 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ project.title }} - Запуск{% endblock %}
+
+{% block content %}
+<section class="project-details-section">
+    <div class="container">
+        <div class="breadcrumbs">
+            <a href="{{ url_for('index') }}">Главная</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('projects') }}">Проекты</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>{{ project.title }}</span>
+        </div>
+        
+        <div class="project-details-layout">
+            <div class="project-details-main">
+                <div class="project-header">
+                    <div class="project-header-left">
+                        <h1 class="project-title">{{ project.title }}</h1>
+                        <div class="project-meta">
+                            <div class="meta-item">
+                                <i class="far fa-calendar-alt"></i>
+                                <span>Опубликовано: {{ project.created_at.strftime('%d.%m.%Y') }}</span>
+                            </div>
+                            
+                            {% if project.deadline %}
+                            <div class="meta-item">
+                                <i class="fas fa-hourglass-half"></i>
+                                <span>Дедлайн: {{ project.deadline.strftime('%d.%m.%Y') }}</span>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="meta-item">
+                                <i class="fas fa-user-tie"></i>
+                                <span>{{ project.client.username }}</span>
+                            </div>
+                            
+                            <div class="meta-item">
+                                <i class="fas fa-file-alt"></i>
+                                <span>{{ project.proposals|length }} предложений</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-header-right">
+                        <div class="project-budget">{{ project.budget }} ₽</div>
+                        <div class="project-status status-{{ project.status }}">
+                            {% if project.status == 'new' %}
+                                <i class="fas fa-bolt"></i> Открыт
+                            {% elif project.status == 'in-progress' %}
+                                <i class="fas fa-spinner fa-spin"></i> В работе
+                            {% elif project.status == 'completed' %}
+                                <i class="fas fa-check-circle"></i> Завершен
+                            {% elif project.status == 'canceled' %}
+                                <i class="fas fa-times-circle"></i> Отменен
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="project-content">
+                    <div class="content-section">
+                        <h2 class="section-title">Описание проекта</h2>
+                        <div class="section-content">
+                            {{ project.description|safe }}
+                        </div>
+                    </div>
+                    
+                    <div class="content-section">
+                        <h2 class="section-title">Требуемые навыки</h2>
+                        <div class="section-content">
+                            <div class="project-skills">
+                                {% for skill in project.skills %}
+                                <span class="skill-tag">{{ skill }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if project.files %}
+                    <div class="content-section">
+                        <h2 class="section-title">Прикрепленные файлы</h2>
+                        <div class="section-content">
+                            <div class="files-list">
+                                {% for file in project.files %}
+                                <div class="file-item">
+                                    <div class="file-icon">
+                                        <i class="fas fa-file-alt"></i>
+                                    </div>
+                                    <div class="file-info">
+                                        <div class="file-name">{{ file.filename }}</div>
+                                        <div class="file-meta">
+                                            <span class="file-size">{{ file.filesize }}</span>
+                                            <span class="file-date">{{ file.uploaded_at.strftime('%d.%m.%Y') }}</span>
+                                        </div>
+                                    </div>
+                                    <a href="{{ url_for('download_file', file_id=file.id) }}" class="file-download">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="actions-section">
+                        {% if current_user.is_authenticated and current_user.role == 'freelancer' and project.status == 'new' %}
+                            <a href="{{ url_for('submit_proposal', project_id=project.id) }}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane"></i> Подать заявку
+                            </a>
+                        {% endif %}
+                        
+                        {% if current_user.is_authenticated and current_user.id == project.client_id %}
+                            <div class="dropdown">
+                                <button class="btn btn-outline dropdown-toggle">
+                                    <i class="fas fa-cog"></i> Управление
+                                </button>
+                                <div class="dropdown-menu">
+                                    {% if project.status == 'new' %}
+                                    <a href="{{ url_for('edit_project', project_id=project.id) }}" class="dropdown-item">
+                                        <i class="fas fa-edit"></i> Редактировать
+                                    </a>
+                                    <a href="{{ url_for('delete_project', project_id=project.id) }}" class="dropdown-item text-danger" onclick="return confirm('Вы уверены, что хотите удалить этот проект?')">
+                                        <i class="fas fa-trash-alt"></i> Удалить
+                                    </a>
+                                    {% endif %}
+                                    {% if project.status == 'new' and project.proposals|length > 0 %}
+                                    <a href="{{ url_for('view_proposals', project_id=project.id) }}" class="dropdown-item">
+                                        <i class="fas fa-list-alt"></i> Просмотр заявок
+                                    </a>
+                                    {% endif %}
+                                    {% if project.status == 'in-progress' %}
+                                    <a href="{{ url_for('mark_completed', project_id=project.id) }}" class="dropdown-item text-success">
+                                        <i class="fas fa-check-circle"></i> Завершить проект
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if project.freelancer and project.status in ['in-progress', 'completed'] %}
+                <div class="assigned-freelancer">
+                    <h2 class="section-title">Исполнитель проекта</h2>
+                    <div class="freelancer-profile">
+                        <div class="freelancer-avatar">
+                            <img src="{{ url_for('static', filename='images/avatars/default.jpg') if not project.freelancer.avatar else url_for('static', filename='uploads/avatars/' + project.freelancer.avatar) }}" alt="{{ project.freelancer.username }}">
+                        </div>
+                        <div class="freelancer-info">
+                            <h3 class="freelancer-name">{{ project.freelancer.username }}</h3>
+                            <div class="freelancer-rating">
+                                <div class="stars">
+                                    {% for i in range(5) %}
+                                        {% if i < project.freelancer.rating|int %}
+                                            <i class="fas fa-star"></i>
+                                        {% elif i < project.freelancer.rating %}
+                                            <i class="fas fa-star-half-alt"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <span class="rating-value">{{ project.freelancer.rating }}</span>
+                                <span class="rating-count">({{ project.freelancer.reviews|length }} отзывов)</span>
+                            </div>
+                            <p class="freelancer-specialization">{{ project.freelancer.specialization }}</p>
+                            <div class="freelancer-stats">
+                                <div class="stat-item">
+                                    <i class="fas fa-briefcase"></i>
+                                    <span>{{ project.freelancer.completed_projects|length }} завершенных проектов</span>
+                                </div>
+                                <div class="stat-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span>Средний срок выполнения: {{ project.freelancer.avg_completion_time }} дней</span>
+                                </div>
+                            </div>
+                            <a href="{{ url_for('freelancer_profile', user_id=project.freelancer.id) }}" class="btn btn-outline btn-sm">
+                                Просмотреть профиль
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="project-details-sidebar">
+                <div class="card client-card">
+                    <div class="card-header">
+                        <h3 class="card-title">О заказчике</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="client-profile">
+                            <div class="client-avatar">
+                                <img src="{{ url_for('static', filename='images/avatars/default.jpg') if not project.client.avatar else url_for('static', filename='uploads/avatars/' + project.client.avatar) }}" alt="{{ project.client.username }}">
+                            </div>
+                            <div class="client-info">
+                                <h4 class="client-name">{{ project.client.username }}</h4>
+                                <div class="client-meta">
+                                    <div class="meta-item">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <span>{{ project.client.location or 'Не указано' }}</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="far fa-clock"></i>
+                                        <span>На сайте с {{ project.client.created_at.strftime('%d.%m.%Y') }}</span>
+                                    </div>
+                                </div>
+                                <div class="client-stats">
+                                    <div class="stat-item">
+                                        <div class="stat-value">{{ project.client.projects|length }}</div>
+                                        <div class="stat-label">Проектов</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-value">{{ project.client.rating }}</div>
+                                        <div class="stat-label">Рейтинг</div>
+                                    </div>
+                                </div>
+                                <a href="{{ url_for('client_profile', user_id=project.client.id) }}" class="btn btn-outline btn-block btn-sm">
+                                    Профиль заказчика
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card similar-projects">
+                    <div class="card-header">
+                        <h3 class="card-title">Похожие проекты</h3>
+                    </div>
+                    <div class="card-body">
+                        {% if similar_projects %}
+                        <div class="similar-projects-list">
+                            {% for similar in similar_projects %}
+                            <div class="similar-project-item">
+                                <a href="{{ url_for('project_details', project_id=similar.id) }}" class="project-title">
+                                    {{ similar.title }}
+                                </a>
+                                <div class="project-meta">
+                                    <span class="project-budget">{{ similar.budget }} ₽</span>
+                                    <span class="project-date">{{ similar.created_at.strftime('%d.%m.%Y') }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="no-similar">
+                            <p>Похожих проектов не найдено</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if current_user.is_authenticated and current_user.role == 'freelancer' %}
+                <div class="card application-tips">
+                    <div class="card-header">
+                        <h3 class="card-title">Советы для успешной заявки</h3>
+                    </div>
+                    <div class="card-body">
+                        <ul class="tips-list">
+                            <li class="tip-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Внимательно прочтите описание проекта и требования</span>
+                            </li>
+                            <li class="tip-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Укажите конкретные примеры похожих работ</span>
+                            </li>
+                            <li class="tip-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Задайте уточняющие вопросы, если нужно</span>
+                            </li>
+                            <li class="tip-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Предложите реалистичные сроки выполнения</span>
+                            </li>
+                            <li class="tip-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Обоснуйте свою ставку</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+.project-details-section {
+    padding: 3rem 0;
+}
+
+.breadcrumbs {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+    font-size: 0.875rem;
+}
+
+.breadcrumbs a {
+    color: var(--gray-dark);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.breadcrumbs a:hover {
+    color: var(--primary-color);
+}
+
+.breadcrumbs i {
+    margin: 0 0.5rem;
+    font-size: 0.75rem;
+    color: var(--gray-color);
+}
+
+.breadcrumbs span {
+    color: var(--gray-dark);
+    font-weight: 500;
+}
+
+.project-details-layout {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 2rem;
+}
+
+.project-details-main {
+    background-color: white;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
+
+.project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 2rem;
+    border-bottom: 1px solid var(--gray-light);
+}
+
+.project-header-left {
+    flex: 1;
+}
+
+.project-title {
+    font-size: 1.75rem;
+    margin: 0 0 1rem;
+    color: var(--dark-color);
+}
+
+.project-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    color: var(--gray-dark);
+    font-size: 0.875rem;
+}
+
+.meta-item i {
+    width: 1.25rem;
+    margin-right: 0.25rem;
+    color: var(--primary-color);
+}
+
+.project-header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.75rem;
+}
+
+.project-budget {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    padding: 0.5rem 1rem;
+    background-color: rgba(79, 70, 229, 0.1);
+    border-radius: var(--radius-sm);
+}
+
+.project-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+}
+
+.status-new {
+    color: var(--primary-color);
+    background-color: rgba(79, 70, 229, 0.05);
+}
+
+.status-in-progress {
+    color: var(--warning-color);
+    background-color: rgba(234, 179, 8, 0.05);
+}
+
+.status-completed {
+    color: var(--success-color);
+    background-color: rgba(34, 197, 94, 0.05);
+}
+
+.status-canceled {
+    color: var(--danger-color);
+    background-color: rgba(239, 68, 68, 0.05);
+}
+
+.project-content {
+    padding: 2rem;
+}
+
+.content-section {
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    margin: 0 0 1rem;
+    color: var(--dark-color);
+}
+
+.section-content {
+    color: var(--gray-dark);
+    line-height: 1.6;
+}
+
+.project-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.skill-tag {
+    padding: 0.35rem 1rem;
+    background-color: rgba(79, 70, 229, 0.05);
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+}
+
+.files-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background-color: var(--light-color);
+    border-radius: var(--radius-md);
+    transition: var(--transition);
+}
+
+.file-item:hover {
+    background-color: rgba(79, 70, 229, 0.05);
+}
+
+.file-icon {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    margin-right: 1rem;
+}
+
+.file-info {
+    flex: 1;
+}
+
+.file-name {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.file-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.75rem;
+    color: var(--gray-color);
+}
+
+.file-download {
+    color: var(--gray-dark);
+    font-size: 1.25rem;
+    transition: var(--transition);
+}
+
+.file-download:hover {
+    color: var(--primary-color);
+}
+
+.actions-section {
+    display: flex;
+    justify-content: flex-start;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--gray-light);
+}
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 200px;
+    background: white;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    margin-top: 0.5rem;
+    display: none;
+    z-index: 10;
+    overflow: hidden;
+}
+
+.dropdown.open .dropdown-menu {
+    display: block;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    color: var(--gray-dark);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.dropdown-item:hover {
+    background-color: rgba(79, 70, 229, 0.05);
+}
+
+.dropdown-item i {
+    width: 1.25rem;
+}
+
+.text-danger {
+    color: var(--danger-color);
+}
+
+.text-danger:hover {
+    background-color: rgba(239, 68, 68, 0.05);
+}
+
+.text-success {
+    color: var(--success-color);
+}
+
+.text-success:hover {
+    background-color: rgba(34, 197, 94, 0.05);
+}
+
+.assigned-freelancer {
+    padding: 2rem;
+    border-top: 1px solid var(--gray-light);
+}
+
+.freelancer-profile {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.freelancer-avatar {
+    width: 5rem;
+    height: 5rem;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.freelancer-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.freelancer-info {
+    flex: 1;
+}
+
+.freelancer-name {
+    font-size: 1.25rem;
+    margin: 0 0 0.5rem;
+}
+
+.freelancer-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.stars {
+    display: flex;
+    align-items: center;
+    color: var(--warning-color);
+}
+
+.rating-value {
+    font-weight: 700;
+}
+
+.rating-count {
+    color: var(--gray-color);
+    font-size: 0.875rem;
+}
+
+.freelancer-specialization {
+    margin: 0 0 0.75rem;
+    color: var(--gray-dark);
+}
+
+.freelancer-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--gray-dark);
+}
+
+.card {
+    background-color: white;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--gray-light);
+}
+
+.card-title {
+    margin: 0;
+    font-size: 1.125rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.client-profile {
+    display: flex;
+    gap: 1rem;
+}
+
+.client-avatar {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.client-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.client-info {
+    flex: 1;
+}
+
+.client-name {
+    font-size: 1.125rem;
+    margin: 0 0 0.5rem;
+}
+
+.client-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.client-stats {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.stat-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--gray-color);
+}
+
+.similar-projects-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.similar-project-item {
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--gray-light);
+}
+
+.similar-project-item:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.project-title {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--dark-color);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.project-title:hover {
+    color: var(--primary-color);
+}
+
+.project-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+}
+
+.project-date {
+    color: var(--gray-color);
+}
+
+.project-budget {
+    font-weight: 500;
+    color: var(--primary-color);
+}
+
+.no-similar {
+    text-align: center;
+    padding: 1rem 0;
+    color: var(--gray-color);
+}
+
+.tips-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.tip-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.tip-item i {
+    color: var(--success-color);
+    margin-top: 0.2rem;
+}
+
+.tip-item span {
+    flex: 1;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+}
+
+@media (max-width: 1200px) {
+    .project-details-layout {
+        grid-template-columns: 2fr 1fr;
+    }
+}
+
+@media (max-width: 992px) {
+    .project-details-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .freelancer-profile {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .freelancer-rating, .freelancer-stats {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .project-header {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .project-header-right {
+        align-items: flex-start;
+    }
+    
+    .actions-section {
+        flex-direction: column;
+    }
+    
+    .dropdown {
+        width: 100%;
+    }
+    
+    .dropdown-toggle {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .btn-block {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dropdownToggle = document.querySelector('.dropdown-toggle');
+    const dropdown = document.querySelector('.dropdown');
+    
+    if (dropdownToggle && dropdown) {
+        dropdownToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropdown.classList.toggle('open');
+        });
+        
+        document.addEventListener('click', function(e) {
+            if (dropdown && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('open');
+            }
+        });
+        
+        const dropdownItems = dropdown.querySelectorAll('.dropdown-item');
+        dropdownItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
+    }
+});
+</script>
+{% endblock %} 

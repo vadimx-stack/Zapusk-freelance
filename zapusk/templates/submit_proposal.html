@@ -1,0 +1,507 @@
+{% extends 'base.html' %}
+
+{% block title %}Подать заявку на проект - Запуск{% endblock %}
+
+{% block content %}
+<section class="submit-proposal-section">
+    <div class="container">
+        <div class="breadcrumbs">
+            <a href="{{ url_for('projects') }}">Проекты</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('project_details', project_id=project.id) }}">{{ project.title }}</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Подать заявку</span>
+        </div>
+        
+        <div class="submit-proposal-layout">
+            <div class="submit-proposal-main">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Подать заявку на проект</h2>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ url_for('submit_proposal', project_id=project.id) }}" method="POST" class="proposal-form">
+                            <div class="form-group">
+                                <label for="bid_amount" class="form-label">Ваша ставка (₽)</label>
+                                <div class="input-with-icon">
+                                    <input type="number" id="bid_amount" name="bid_amount" class="form-control" required placeholder="Укажите вашу ставку">
+                                    <i class="fas fa-ruble-sign"></i>
+                                </div>
+                                <small class="form-text">Бюджет проекта: {{ project.budget }} ₽</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="delivery_time" class="form-label">Срок выполнения (дней)</label>
+                                <div class="input-with-icon">
+                                    <input type="number" id="delivery_time" name="delivery_time" class="form-control" required placeholder="Укажите срок выполнения">
+                                    <i class="fas fa-calendar-day"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="description" class="form-label">Ваше предложение</label>
+                                <textarea id="description" name="description" class="form-control" rows="8" required placeholder="Подробно опишите, как вы планируете выполнить проект. Расскажите о вашем опыте, подходе к работе и других деталях, которые могут заинтересовать заказчика."></textarea>
+                                <small class="form-text">Подробное описание поможет заказчику выбрать именно ваше предложение.</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Прикрепить портфолио или примеры работ (не обязательно)</label>
+                                <div class="file-upload">
+                                    <input type="file" id="portfolio" name="portfolio" multiple class="file-input">
+                                    <label for="portfolio" class="file-label">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <span>Перетащите файлы сюда или нажмите для выбора</span>
+                                    </label>
+                                </div>
+                                <div id="file-list" class="file-list"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <div class="proposal-terms">
+                                    <input type="checkbox" id="terms" name="terms" required>
+                                    <label for="terms">Я понимаю, что после принятия моего предложения заказчиком, я обязуюсь выполнить работу в соответствии с условиями, указанными в моем предложении.</label>
+                                </div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary btn-lg">Отправить предложение</button>
+                                <a href="{{ url_for('project_details', project_id=project.id) }}" class="btn btn-outline btn-lg">Отмена</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="submit-proposal-sidebar">
+                <div class="card project-info-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Информация о проекте</h3>
+                    </div>
+                    <div class="card-body">
+                        <h4 class="project-title">{{ project.title }}</h4>
+                        <div class="project-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-ruble-sign"></i>
+                                <span>Бюджет: {{ project.budget }} ₽</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="far fa-calendar-alt"></i>
+                                <span>Опубликовано: {{ project.created_at.strftime('%d.%m.%Y') }}</span>
+                            </div>
+                            {% if project.deadline %}
+                                <div class="meta-item">
+                                    <i class="fas fa-hourglass-half"></i>
+                                    <span>Дедлайн: {{ project.deadline.strftime('%d.%m.%Y') }}</span>
+                                </div>
+                            {% endif %}
+                            <div class="meta-item">
+                                <i class="fas fa-user-tie"></i>
+                                <span>Заказчик: {{ project.client.username }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="project-description-short">
+                            {{ project.description|truncate(200) }}
+                            <a href="{{ url_for('project_details', project_id=project.id) }}" class="read-more">Читать полностью</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card tips-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Советы для успешной заявки</h3>
+                    </div>
+                    <div class="card-body">
+                        <ul class="tips-list">
+                            <li class="tip-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Подробно опишите ваш опыт и квалификацию</span>
+                            </li>
+                            <li class="tip-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Предложите реалистичные сроки выполнения</span>
+                            </li>
+                            <li class="tip-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Объясните, почему вы лучший исполнитель для этого проекта</span>
+                            </li>
+                            <li class="tip-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Прикрепите примеры релевантных работ</span>
+                            </li>
+                            <li class="tip-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Задавайте уточняющие вопросы, если что-то неясно</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+.submit-proposal-section {
+    padding: 3rem 0;
+}
+
+.breadcrumbs {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+    color: var(--gray-dark);
+    font-size: 0.875rem;
+}
+
+.breadcrumbs a {
+    color: var(--gray-dark);
+    transition: var(--transition);
+}
+
+.breadcrumbs a:hover {
+    color: var(--primary-color);
+}
+
+.breadcrumbs i {
+    font-size: 0.6rem;
+    margin: 0 0.75rem;
+}
+
+.submit-proposal-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+.submit-proposal-main {
+    order: 1;
+}
+
+.submit-proposal-sidebar {
+    order: 2;
+}
+
+.card {
+    background-color: white;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--gray-light);
+}
+
+.card-title {
+    margin-bottom: 0;
+    font-size: 1.25rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.proposal-form {
+    max-width: 100%;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 1px solid var(--gray-light);
+    border-radius: var(--radius-md);
+    transition: var(--transition);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+
+.form-text {
+    font-size: 0.875rem;
+    color: var(--gray-dark);
+    margin-top: 0.25rem;
+}
+
+.input-with-icon {
+    position: relative;
+}
+
+.input-with-icon .form-control {
+    padding-right: 2.5rem;
+}
+
+.input-with-icon i {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray-color);
+}
+
+.file-upload {
+    position: relative;
+    border: 2px dashed var(--gray-light);
+    border-radius: var(--radius-md);
+    padding: 2rem;
+    text-align: center;
+    transition: var(--transition);
+}
+
+.file-upload:hover {
+    border-color: var(--primary-color);
+}
+
+.file-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.file-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+}
+
+.file-label i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.file-list {
+    margin-top: 1rem;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    background-color: rgba(79, 70, 229, 0.05);
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.5rem;
+}
+
+.file-name {
+    flex: 1;
+    margin-left: 0.5rem;
+}
+
+.file-remove {
+    background: none;
+    border: none;
+    color: var(--danger-color);
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.proposal-terms {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+}
+
+.proposal-terms label {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--gray-dark);
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.btn-lg {
+    padding: 0.75rem 1.75rem;
+}
+
+.project-info-card {
+    background-color: white;
+}
+
+.project-title {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.project-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    color: var(--gray-dark);
+    font-size: 0.875rem;
+}
+
+.meta-item i {
+    width: 1.25rem;
+    margin-right: 0.5rem;
+    color: var(--primary-color);
+}
+
+.project-description-short {
+    color: var(--gray-dark);
+    line-height: 1.6;
+    font-size: 0.9rem;
+}
+
+.read-more {
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-weight: 500;
+}
+
+.tips-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.tip-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.tip-item i {
+    color: var(--secondary-color);
+    font-size: 1rem;
+    margin-top: 0.2rem;
+}
+
+.tip-item span {
+    color: var(--gray-dark);
+    line-height: 1.5;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 992px) {
+    .submit-proposal-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .submit-proposal-main {
+        order: 2;
+    }
+    
+    .submit-proposal-sidebar {
+        order: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .breadcrumbs {
+        flex-wrap: wrap;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .btn-lg {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('portfolio');
+    const fileList = document.getElementById('file-list');
+    
+    if (fileInput && fileList) {
+        fileInput.addEventListener('change', function() {
+            fileList.innerHTML = '';
+            
+            Array.from(this.files).forEach(file => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                
+                fileItem.innerHTML = `
+                    <i class="fas fa-file"></i>
+                    <span class="file-name">${file.name}</span>
+                    <button type="button" class="file-remove">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                fileList.appendChild(fileItem);
+            });
+            
+            document.querySelectorAll('.file-remove').forEach(button => {
+                button.addEventListener('click', function() {
+                    this.closest('.file-item').remove();
+                });
+            });
+        });
+    }
+    
+    const proposalForm = document.querySelector('.proposal-form');
+    if (proposalForm) {
+        proposalForm.addEventListener('submit', function(e) {
+            const bidAmount = document.getElementById('bid_amount').value;
+            const description = document.getElementById('description').value;
+            
+            let isValid = true;
+            
+            document.querySelectorAll('.form-error').forEach(error => {
+                error.remove();
+            });
+            
+            if (!bidAmount || bidAmount <= 0) {
+                isValid = false;
+                const errorElement = document.createElement('div');
+                errorElement.className = 'form-error';
+                errorElement.textContent = 'Укажите корректную ставку';
+                document.getElementById('bid_amount').parentNode.appendChild(errorElement);
+            }
+            
+            if (!description || description.length < 50) {
+                isValid = false;
+                const errorElement = document.createElement('div');
+                errorElement.className = 'form-error';
+                errorElement.textContent = 'Описание должно содержать не менее 50 символов';
+                document.getElementById('description').parentNode.appendChild(errorElement);
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+    }
+});
+</script>
+{% endblock %} 
